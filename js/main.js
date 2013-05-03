@@ -1,7 +1,7 @@
 var client = new Usergrid.Client({
     URI: 'http://usergridstack.dnsdynamic.com:8080',
     orgName: 'deneme', //your orgname goes here (not case sensitive)
-    appName: 'restaurantreviews', //your appname goes here (not case sensitive)
+    appName: 'cowtip', //your appname goes here (not case sensitive)
     logging: true, //optional - turn on logging, off by default
     buildCurl: true //optional - turn on curl commands, off by default
 });
@@ -20,7 +20,7 @@ $(document).ready(function () {
             $("#addTipBtn").removeAttr("disabled");
         }, function (err) {
             //Since geolocation failed, we can't allow the user to submit
-            doAlert("Sorry, but we couldn't find your location.\nYou may not post a cow tip.");
+            doAlert("Sorry, but we couldn't find your location.\nYou may not post a restaurant review.");
         });
 
     }
@@ -34,20 +34,20 @@ $(document).ready(function () {
         var comments = $("#comments").val();
 
         //TBD: Validation
-        var tip = new Usergrid.Entity({'client':client,data:{'type':"reviews"}});
-        tip.set('namerest', namerest);
-        tip.set('rate', rate);
-        tip.set('comments', comments);
-        tip.set('location', {
+        var review = new Usergrid.Entity({'client':client,data:{'type':"tips"}});
+        review.set('namerest', namerest);
+        review.set('rate', rate);
+        review.set('comments', comments);
+        review.set('location', {
             latitude: currentLocation.latitude,
             longitude: currentLocation.longitude
         });
-        tip.save(function (err, retdata) {
+        review.save(function (err, retdata) {
             if (err) {
                 console.log("Error saving");
             } else {
                 console.log("Saved object");
-                doAlert("Tip Saved!", function () {
+                doAlert("Review Saved!", function () {
                     document.location.href = 'index.html';
                 });
             }
@@ -68,7 +68,7 @@ $(document).ready(function () {
             var lastWeek = new Date();
             lastWeek.setDate(lastWeek.getDate() - 7);
             var options = {
-                type: 'reviews',
+                type: 'tips',
                 qs: {"ql": "select * where location within 16903 of " + myLocation.latitude + ", " + myLocation.longitude + " and created >= " + lastWeek.getTime()}
             }
 
@@ -97,7 +97,6 @@ function renderResults(results, myLoc) {
 
         var map = L.map('map').setView([myLoc.latitude, myLoc.longitude], 8);
         var layerOpenStreet = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18, minZoom: 1, attribution: 'Map data &copy; 2012 OpenStreetMap'}).addTo(map);
-        var dangerLevels = ["Totally Safe", "Some Risk", "Farmer with Shotgun!"];
 
         while (results.hasNextEntity()) {
             var result = results.getNextEntity();
