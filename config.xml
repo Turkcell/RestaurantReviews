@@ -3,7 +3,7 @@
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "com.globalmaksimum.restreview"
         version   = "1.0.0">
-    <name>CowTipLine</name>
+    <name>RestaurantReviews</name>
 
     <author href="http://www.globalmaksimum.com" email="mert.terzihan@globalmaksimum.com">
         Mert Terzihan
