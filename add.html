@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<script src="phonegap.js"></script>
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+<script src="js/usergrid.js"></script>
+<script src="js/main.js"></script>
+<link href="bootstrap/css/bootstrap.min.css" rel="stylesheet">
+<link href="bootstrap/css/bootstrap-responsive.css" rel="stylesheet">
+<script src='http://jquery-star-rating-plugin.googlecode.com/svn/trunk/jquery.js' type="text/javascript"></script>
+<script src='http://jquery-star-rating-plugin.googlecode.com/svn/trunk/jquery.MetaData.js' type="text/javascript" language="javascript"></script>
+<script src='http://jquery-star-rating-plugin.googlecode.com/svn/trunk/jquery.rating.js' type="text/javascript" language="javascript"></script>
+<link href='http://jquery-star-rating-plugin.googlecode.com/svn/trunk/jquery.rating.css' type="text/css" rel="stylesheet"/>
+<link type="text/css" href="http://www.fyneworks.com/@/js/jquery/ui/jquery.ui.css" rel="stylesheet"/>
+
+</head>
+
+<body>
+
+	<div class="navbar">
+		<div class="navbar-inner">
+			<div class="container">
+
+				<a class="btn btn-navbar" data-toggle="collapse" data-target=".nav-collapse">
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				</a>
+
+				<!-- Be sure to leave the brand out there if you want it shown -->
+				<a class="brand" href="#">RestaurantReviews</a>
+
+				<div class="nav-collapse">
+					<ul class="nav">
+						<li><a href="index.html">Home</a></li>
+						<li class="active"><a href="add.html">Add Review</a></li>
+						<li><a href="get.html">Get Restaurants</a></li>
+					</ul>
+				</div>
+
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+
+		<form id="addtipForm">
+
+			<label for="numcows">Name of the Restaurant:</label>
+			<input type="text" id="numcows" class="input-xlarge" placeholder="Enter the name of the restaurant">
+
+			<label for="howdangerous">Your Review</label>
+			<div class="Clear">
+				<input class="star" type="radio" name="howdangerous" value="1" title="Worst"/>
+				<input class="star" type="radio" name="howdangerous" value="2" title="Bad"/>
+				<input class="star" type="radio" name="howdangerous" value="3" title="OK"/>
+				<input class="star" type="radio" name="howdangerous" value="4" title="Good"/>
+				<input class="star" type="radio" name="howdangerous" value="5" title="Best"/>
+			</div>
+			<input type="hidden" id="howdangerous" value="">
+			<script>
+			$('.star').rating({
+				callback: function(value, link) {
+					//alert(value);
+					$("#howdangerous").val(value);
+				}
+			});
+			</script>
+
+
+			<label for="comments">Additional Comments:</label>
+			<textarea id="comments" class="input-xlarge"></textarea>
+
+			<input type="submit" class="btn btn-block btn-primary" value="Send Review" id="addTipBtn" disabled>
+
+		</form>
+
+	</div>
+
+	<script src="js/jquery-1.8.2.min.js"></script>
+	<script src="bootstrap/js/bootstrap.min.js"></script>
+	
+</body>
+</html>
