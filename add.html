@@ -47,23 +47,23 @@
 
 		<form id="addtipForm">
 
-			<label for="numcows">Name of the Restaurant:</label>
-			<input type="text" id="numcows" class="input-xlarge" placeholder="Enter the name of the restaurant">
+			<label for="namerest">Name of the Restaurant:</label>
+			<input type="text" id="namerest" class="input-xlarge" placeholder="Enter the name of the restaurant">
 
-			<label for="howdangerous">Your Review</label>
+			<label for="rate">Your Review</label>
 			<div class="Clear">
-				<input class="star" type="radio" name="howdangerous" value="1" title="Worst"/>
-				<input class="star" type="radio" name="howdangerous" value="2" title="Bad"/>
-				<input class="star" type="radio" name="howdangerous" value="3" title="OK"/>
-				<input class="star" type="radio" name="howdangerous" value="4" title="Good"/>
-				<input class="star" type="radio" name="howdangerous" value="5" title="Best"/>
+				<input class="star" type="radio" name="rate" value="1" title="Worst"/>
+				<input class="star" type="radio" name="rate" value="2" title="Bad"/>
+				<input class="star" type="radio" name="rate" value="3" title="OK"/>
+				<input class="star" type="radio" name="rate" value="4" title="Good"/>
+				<input class="star" type="radio" name="rate" value="5" title="Best"/>
 			</div>
-			<input type="hidden" id="howdangerous" value="">
+			<input type="hidden" id="rate" value="">
 			<script>
 			$('.star').rating({
 				callback: function(value, link) {
 					//alert(value);
-					$("#howdangerous").val(value);
+					$("#rate").val(value);
 				}
 			});
 			</script>

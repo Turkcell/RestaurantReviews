@@ -1,7 +1,7 @@
 var client = new Usergrid.Client({
     URI: 'http://usergridstack.dnsdynamic.com:8080',
     orgName: 'deneme', //your orgname goes here (not case sensitive)
-    appName: 'cowtip', //your appname goes here (not case sensitive)
+    appName: 'restaurantreviews', //your appname goes here (not case sensitive)
     logging: true, //optional - turn on logging, off by default
     buildCurl: true //optional - turn on curl commands, off by default
 });
@@ -29,14 +29,14 @@ $(document).ready(function () {
         e.preventDefault();
 
         //get values
-        var numcows = $("#numcows").val();
-        var howdangerous = $("#howdangerous").val();
+        var namerest = $("#namerest").val();
+        var rate = $("#rate").val();
         var comments = $("#comments").val();
 
         //TBD: Validation
-        var tip = new Usergrid.Entity({'client':client,data:{'type':"tips"}});
-        tip.set('numcows', numcows);
-        tip.set('howdangerous', howdangerous);
+        var tip = new Usergrid.Entity({'client':client,data:{'type':"reviews"}});
+        tip.set('namerest', namerest);
+        tip.set('rate', rate);
         tip.set('comments', comments);
         tip.set('location', {
             latitude: currentLocation.latitude,
@@ -68,17 +68,17 @@ $(document).ready(function () {
             var lastWeek = new Date();
             lastWeek.setDate(lastWeek.getDate() - 7);
             var options = {
-                type: 'tips',
+                type: 'reviews',
                 qs: {"ql": "select * where location within 16903 of " + myLocation.latitude + ", " + myLocation.longitude + " and created >= " + lastWeek.getTime()}
             }
 
-            client.createCollection(options, function (err, tips) {
+            client.createCollection(options, function (err, reviews) {
                 if (err) {
                     alert("Error: " + err);
                 } else {
                     //Success - new collection created
                     //we got the dogs, now display the Entities:
-                    renderResults(tips, myLocation);
+                    renderResults(reviews, myLocation);
 
                 }
             });
@@ -102,12 +102,12 @@ function renderResults(results, myLoc) {
         while (results.hasNextEntity()) {
             var result = results.getNextEntity();
             var marker = L.marker([result.get('location').latitude, result.get('location').longitude]).addTo(map);
-            var markerLabel = "Restaurant: " + result.get('numcows') + "<br/>Rate: " + result.get('howdangerous') + "/5";
+            var markerLabel = "Restaurant: " + result.get('namerest') + "<br/>Rate: " + result.get('rate') + "/5";
             if (result.get('comments') && result.get('comments').length) markerLabel += "<br>" + result.get('comments');
             marker.bindPopup(markerLabel);
         }
     } else {
-        $("#tipdisplay").html("I'm sorry, but I couldn't find any tips within 30 miles and from the past 7 days.");
+        $("#tipdisplay").html("I'm sorry, but I couldn't find any restaurant within 30 miles and from the past 7 days.");
     }
 }
 
