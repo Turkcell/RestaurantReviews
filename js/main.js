@@ -11,6 +11,42 @@ var currentLocation;
 
 $(document).ready(function () {
 
+    $("#signup-form").on("submit", function (e) {
+        e.preventDefault();
+        var username = $("#username").val();
+        var email = $("#email").val();
+        var name = $("#name").val();
+        var password = $("#password").val();
+
+        var newuser = new Usergrid.Entity({'client':client, data:{'type':"users"}});
+        newuser.set('username', username);
+        newuser.set('name', name);
+        newuser.set('email', email);
+        newuser.set('password', password);
+        newuser.save(function (err, retdata) {
+            if(err) {
+                console.log("Error in creating user");
+            } else {
+                console.log("User created");
+                window.location = 'login.html';
+            }
+        });
+    });
+
+    $("#login-form").on("submit", function (e) {
+        e.preventDefault();
+        var username = $("#username").val();
+        var password = $("#password").val();
+
+        client.login(username, password, function (err, data) {
+            if(err){
+                console.log("Wrong username or password");
+            } else {
+                console.log("Logged in");
+                window.location = 'index.html';
+            }
+        });
+    });
     //I handle doing GPS on addForm display
     if ($("#addTipBtn").length === 1) {
         currentLocation = null;
