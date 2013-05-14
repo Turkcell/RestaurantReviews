@@ -8,6 +8,7 @@ var client = new Usergrid.Client({
 
 
 var currentLocation;
+var appUser;
 
 $(document).ready(function () {
 
@@ -60,6 +61,54 @@ $(document).ready(function () {
         });
 
     }
+
+    $(document).on("click", "[data-id]", function (e) {
+        e.preventDefault();
+        var username = $(this).data("id");
+        var unfollow = false;
+        if($(this).hasClass("unfollowed")){
+            unfollow = true;
+        }
+        client.getLoggedInUser(function (err, data, user){
+            if(err){
+                window.location = 'login.html';
+            } else {
+                if(client.isLoggedIn()){
+                    appUser = user._data.username;
+                    console.log();
+                    if(unfollow){
+                        var options = {
+                          method:'DELETE',
+                          endpoint:'users/' + appUser + '/following/users/' + username
+                        };
+                        client.request(options, function (err, data) {
+                            if(err){
+                                console.log("Cannot unfollow user");
+                            } else {
+                                console.log("User unfollowed");
+                                window.location = 'users.html';
+                            }
+                        }); 
+                    } else {
+                        var options = {
+                          method:'POST',
+                          endpoint:'users/' + appUser + '/following/users/' + username
+                        };
+                        client.request(options, function (err, data) {
+                            if(err){
+                                console.log("Cannot follow user");
+                            } else {
+                                console.log("User followed");
+                                window.location = 'users.html';
+                            }
+                        });
+                    }
+                } else {
+                    window.location = 'login.html';
+                }
+            }
+        });
+    });
 
     $("#addtipForm").on("submit", function (e) {
         e.preventDefault();
