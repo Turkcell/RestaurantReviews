@@ -6,7 +6,6 @@ var client = new Usergrid.Client({
     buildCurl: true //optional - turn on curl commands, off by default
 });
 
-
 var currentLocation;
 var appUser;
 
@@ -78,8 +77,8 @@ $(document).ready(function () {
                     console.log();
                     if(unfollow){
                         var options = {
-                          method:'DELETE',
-                          endpoint:'users/' + appUser + '/following/users/' + username
+                            method:'DELETE',
+                            endpoint:'users/' + appUser + '/following/users/' + username
                         };
                         client.request(options, function (err, data) {
                             if(err){
@@ -88,11 +87,11 @@ $(document).ready(function () {
                                 console.log("User unfollowed");
                                 window.location = 'users.html';
                             }
-                        }); 
+                        });
                     } else {
                         var options = {
-                          method:'POST',
-                          endpoint:'users/' + appUser + '/following/users/' + username
+                            method:'POST',
+                            endpoint:'users/' + appUser + '/following/users/' + username
                         };
                         client.request(options, function (err, data) {
                             if(err){
@@ -109,7 +108,13 @@ $(document).ready(function () {
             }
         });
     });
-
+    client.getLoggedInUser(function (err, data, user){
+        if(err){
+            //window.location = 'login.html';
+        } else {
+            appUser = user._data.username;
+        }
+    });
     $("#addtipForm").on("submit", function (e) {
         e.preventDefault();
 
@@ -123,6 +128,7 @@ $(document).ready(function () {
         review.set('namerest', namerest);
         review.set('rate', rate);
         review.set('comments', comments);
+        review.set('creator', appUser);
         review.set('location', {
             latitude: currentLocation.latitude,
             longitude: currentLocation.longitude
@@ -146,15 +152,39 @@ $(document).ready(function () {
 
         navigator.geolocation.getCurrentPosition(function (pos) {
 
+            var followingList = new Array();
+            var index = 0;
+            jQuery.ajax({url:"http://usergridstack.dnsdynamic.com:8080/deneme/cowtip/users/" + appUser + "/following", success:function (data,status){
+                jQuery.each(data.entities, function (i, val){
+                    followingList[index] = val.username;
+                    index++;
+                });
+            }, async:false});
+
             var myLocation = {latitude: pos.coords.latitude, longitude: pos.coords.longitude};
             //query.near("location", myLocation);
             //Only within 30 miles
             //only within last week
             var lastWeek = new Date();
+            var querytmp;
             lastWeek.setDate(lastWeek.getDate() - 7);
+            querytmp = "select * where location within 16903 of " + myLocation.latitude + ", " + myLocation.longitude + " and created >= " + lastWeek.getTime();
+
+            if(followingList[0] != null ) {
+                querytmp = querytmp + " and ( creator = '";
+                for (var j = 0; j< index; j++) {
+                    querytmp = querytmp + followingList[j] ;
+                    if(followingList[j+1] != null ) {
+                        querytmp = querytmp + "' or creator ='";
+                    }
+                }
+                querytmp = querytmp + "')";
+            }
+            console.log(querytmp);
             var options = {
                 type: 'tips',
-                qs: {"ql": "select * where location within 16903 of " + myLocation.latitude + ", " + myLocation.longitude + " and created >= " + lastWeek.getTime()}
+                //qs: {"ql": "select * where location within 16903 of " + myLocation.latitude + ", " + myLocation.longitude + " and created >= " + lastWeek.getTime() + " and creator = " + appUser}
+                qs: {"ql": querytmp}
             }
 
             client.createCollection(options, function (err, reviews) {
