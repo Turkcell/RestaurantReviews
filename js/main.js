@@ -5,9 +5,9 @@ var client = new Usergrid.Client({
     logging: true, //optional - turn on logging, off by default
     buildCurl: true //optional - turn on curl commands, off by default
 });
-
 var currentLocation;
 var appUser;
+var count;
 
 $(document).ready(function () {
 
@@ -74,7 +74,6 @@ $(document).ready(function () {
             } else {
                 if(client.isLoggedIn()){
                     appUser = user._data.username;
-                    console.log();
                     if(unfollow){
                         var options = {
                             method:'DELETE',
@@ -205,21 +204,47 @@ $(document).ready(function () {
 });
 
 function renderResults(results, myLoc) {
-    console.log("renderResults: " + results.length);
+
 
     if (results.hasNextEntity()) {
         $("#tipdisplay").html("Displaying restaurants within 30 miles of your location.");
 
         var map = L.map('map').setView([myLoc.latitude, myLoc.longitude], 8);
         var layerOpenStreet = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18, minZoom: 1, attribution: 'Map data &copy; 2012 OpenStreetMap'}).addTo(map);
-
+        var c = 0;
         while (results.hasNextEntity()) {
+            c++;
             var result = results.getNextEntity();
+
             var marker = L.marker([result.get('location').latitude, result.get('location').longitude]).addTo(map);
             var markerLabel = "Restaurant: " + result.get('namerest') + "<br/>Rate: " + result.get('rate') + "/5";
-            if (result.get('comments') && result.get('comments').length) markerLabel += "<br>" + result.get('comments');
+            if (result.get('comments') && result.get('comments').length){
+                markerLabel += "<br>" + result.get('comments');
+
+            }
             marker.bindPopup(markerLabel);
+            marker.on('click' , function() {
+                $('#rest-comments').empty();
+                $("#rest-comments").append("<p>Restaurant: " + result.get('namerest') + " <i> Comment:" + result.get('comments') + "</i></p> <small>User: " + result.get('creator')+ "</small><div class='Clear'>");
+                if( result.get('rate') == '1' )
+                    $("#rest-comments").append("<input class='star' type='radio' name='rate' value='1' title='Worst' checked='checked' disabled='disabled'/>");
+                else $("#rest-comments").append("<input class='star' type='radio' name='rate' value='1' title='Worst' disabled='disabled'/>");
+                if( result.get('rate') == '2' )
+                    $("#rest-comments").append("<input class='star' type='radio' name='rate' value='2' title='Bad' checked='checked' disabled='disabled'/>");
+                else $("#rest-comments").append("<input class='star' type='radio' name='rate' value='2' title='Bad' disabled='disabled'/>");
+                if( result.get('rate') == '3' )
+                    $("#rest-comments").append("<input class='star' type='radio' name='rate' value='3' title='OK' checked='checked' disabled='disabled'/>");
+                else $("#rest-comments").append("<input class='star' type='radio' name='rate' value='3' title='OK' disabled='disabled'/>");
+                if( result.get('rate') == '4' )
+                    $("#rest-comments").append("<input class='star' type='radio' name='rate' value='4' title='Good' checked='checked' disabled='disabled'/>");
+                else $("#rest-comments").append("<input class='star' type='radio' name='rate' value='4' title='Good' disabled='disabled'/>");
+                if( result.get('rate') == '5' )
+                    $("#rest-comments").append("<input class='star' type='radio' name='rate' value='5' title='Best' checked='checked' disabled='disabled'/>");
+                else $("#rest-comments").append("<input class='star' type='radio' name='rate' value='5' title='Best' disabled='disabled'/>");
+                $("#rest-comments").append("</div>");
+            });
         }
+        $("#likes").append("There are " + c + " comments.");
     } else {
         $("#tipdisplay").html("I'm sorry, but I couldn't find any restaurant within 30 miles and from the past 7 days.");
     }
