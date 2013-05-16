@@ -242,6 +242,13 @@ function renderResults(results, myLoc) {
                     $("#rest-comments").append("<input class='star' type='radio' name='rate' value='5' title='Best' checked='checked' disabled='disabled'/>");
                 else $("#rest-comments").append("<input class='star' type='radio' name='rate' value='5' title='Best' disabled='disabled'/>");
                 $("#rest-comments").append("</div>");
+
+                $('.star').rating({
+                    callback: function(value, link) {
+                        //alert(value);
+                        $("#rate").val(value);
+                    }
+                });
             });
         }
         $("#likes").append("There are " + c + " comments.");
