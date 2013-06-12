@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns     = "http://www.w3.org/ns/widgets"
+        xmlns:gap = "http://phonegap.com/ns/1.0"
+        id        = "com.globalmaksimum.restreview"
+        version   = "1.0.0">
+    <name>RestaurantReviews</name>
+
+    <author href="http://www.globalmaksimum.com" email="mert.terzihan@globalmaksimum.com">
+        Mert Terzihan
+    </author>
+
+    <feature name="http://api.phonegap.com/1.0/device" />
+
+    <preference name="phonegap-version" value="2.5.0" />
+    <preference name="orientation"      value="default" />
+    <preference name="target-device"    value="universal" />
+    <preference name="fullscreen"       value="false" />
+
+    <feature name="http://api.phonegap.com/1.0/geolocation"/>
+
+    <icon src="icons/rest_icon_57.png" width="57" height="57" />
+    <icon src="icons/rest_icon_72.png" width="72" height="72" />
+
+</widget>
