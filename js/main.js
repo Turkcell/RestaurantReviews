@@ -191,7 +191,7 @@ $(document).ready(function () {
             //var lastWeek = new Date();
             //var lastWeek.setDate(lastWeek.getDate() - 7);
             //var ql = "select * where location within 16903 of " + myLocation.latitude + ", " + myLocation.longitude + " and created >= " + lastWeek.getTime() + " and creator = " + appUser};
-            var ql = "select * where location within 169030 of " + myLocation.latitude + ", " + myLocation.longitude;
+            var ql = "select * where location within 16903 of " + myLocation.latitude + ", " + myLocation.longitude;
             var options = {
                 type: 'restaurants',
                 qs: {"ql": ql}
