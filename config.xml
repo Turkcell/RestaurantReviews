@@ -23,4 +23,6 @@
     <icon src="icons/rest_icon_57.png" width="57" height="57" />
     <icon src="icons/rest_icon_72.png" width="72" height="72" />
 
+    <access origin="*" />
+
 </widget>
