@@ -179,44 +179,27 @@ $(document).ready(function () {
         });
     });
 
-    if ($("#tipdisplay").length === 1) {
+    var tipDisplay = $("#tipdisplay");
+
+    if (tipDisplay.length > 0) {
 
         //Update status to let the user know we are doing important things. Really important.
-        $("#tipdisplay").html("Please stand by. Checking your location for nearby restaurants!");
+        tipDisplay.html("Please stand by. Checking your location for nearby restaurants!");
 
         navigator.geolocation.getCurrentPosition(function (pos) {
-
-            var followingList = new Array();
-            var index = 0;
-            jQuery.ajax({url:"http://usergridstack.dnsdynamic.com:8080/deneme/cowtip/users/" + appUser + "/following", success:function (data,status){
-                jQuery.each(data.entities, function (i, val){
-                    followingList[index] = val.username;
-                    index++;
-                });
-            }, async:false});
-
             var myLocation = {latitude: pos.coords.latitude, longitude: pos.coords.longitude};
-            //query.near("location", myLocation);
-            //Only within 30 miles
-            //only within last week
-            var lastWeek = new Date();
-            var querytmp;
-            lastWeek.setDate(lastWeek.getDate() - 7);
-            querytmp = "select * where location within 16903 of " + myLocation.latitude + ", " + myLocation.longitude;
+            //var lastWeek = new Date();
+            //var lastWeek.setDate(lastWeek.getDate() - 7);
+            //var ql = "select * where location within 16903 of " + myLocation.latitude + ", " + myLocation.longitude + " and created >= " + lastWeek.getTime() + " and creator = " + appUser};
+            var ql = "select * where location within 169030 of " + myLocation.latitude + ", " + myLocation.longitude;
             var options = {
                 type: 'restaurants',
-                //qs: {"ql": "select * where location within 16903 of " + myLocation.latitude + ", " + myLocation.longitude + " and created >= " + lastWeek.getTime() + " and creator = " + appUser}
-                qs: {"ql": querytmp}
-            }
+                qs: {"ql": ql}
+            };
 
             client.createCollection(options, function (err, reviews) {
-                if (err) {
-                    alert("Error: " + err);
-                } else {
-                    //Success - new collection created
-                    //we got the dogs, now display the Entities:
+                if (!err) {
                     renderResults(reviews, myLocation);
-
                 }
             });
         }, function (err) {
@@ -227,91 +210,110 @@ $(document).ready(function () {
 });
 
 function renderResults(results, myLoc) {
+    var tipDisplay = $("#tipdisplay");
 
+    if (!results.hasNextEntity()) {
+        tipDisplay.html("I'm sorry, but I couldn't find any restaurant within 30 miles and from the past 7 days.");
 
-    if (results.hasNextEntity()) {
-        $("#tipdisplay").html("Displaying restaurants within 30 miles of your location.");
+        return;
+    }
 
-        var map = L.map('map').setView([myLoc.latitude, myLoc.longitude], 8);
-        var layerOpenStreet = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18, minZoom: 1, attribution: 'Map data &copy; 2012 OpenStreetMap'}).addTo(map);
-        var c = 0;
-        while (results.hasNextEntity()) {
-            c++;
-            var result = results.getNextEntity();
+    tipDisplay.html("Displaying restaurants within 30 miles of your location.");
 
-            var marker = L.marker([result.get('location').latitude, result.get('location').longitude]).addTo(map);
-            var markerLabel = "Restaurant: " + result.get('namerest');
+    var map = L.map('map').setView([myLoc.latitude, myLoc.longitude], 8);
+    var layerOpenStreet = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {maxZoom: 18, minZoom: 1});
+    layerOpenStreet.addTo(map);
 
-            var followingList = new Array();
-            var index = 0;
-            jQuery.ajax({url:"http://usergridstack.dnsdynamic.com:8080/deneme/cowtip/users/" + appUser + "/following", success:function (data,status){
-                jQuery.each(data.entities, function (i, val){
-                    followingList[index] = val.username;
-                    index++;
-                });
-            }, async:false});
+    while (results.hasNextEntity()) {
+        var result = results.getNextEntity();
+        var marker = L.marker([result.get('location').latitude, result.get('location').longitude], {
+            restaurant: result
+        }).addTo(map);
+        marker.bindPopup("Restaurant: " + result.get('namerest'));
 
-            var querytmp = "select * where namerest = '" + result.get('namerest') + "'";
-            if(followingList[0] != null ) {
-                querytmp = querytmp + " and ( creator = '";
-                for (var j = 0; j< index; j++) {
-                    querytmp = querytmp + followingList[j] ;
-                    if(followingList[j+1] != null ) {
-                        querytmp = querytmp + "' or creator ='";
-                    }
+        marker.on('click', function(e) {
+            var commentsContainer = $("#comments").hide();
+            var followingList = [];
+
+            jQuery.ajax({
+                url: "http://usergridstack.dnsdynamic.com:8080/deneme/cowtip/users/me/following",
+                async: false,
+                data: {
+                    access_token: client.getToken()
+                },
+                success:function (data){
+                    jQuery.each(data.entities, function (i, val){
+                        followingList.push(val.username);
+                    });
                 }
-                querytmp = querytmp + "')";
+            });
+
+            var ql = "select * where namerest = '" + e.target.options.restaurant.get('namerest') + "'";
+
+            if (followingList.length) {
+                ql += " and (creator = '" + followingList.join("' or creator = '") + "')";
             }
+
             var options = {
                 type: 'tips',
-                //qs: {"ql": "select * where location within 16903 of " + myLocation.latitude + ", " + myLocation.longitude + " and created >= " + lastWeek.getTime() + " and creator = " + appUser}
-                qs: {"ql": querytmp}
-            }
+                qs: {ql: ql}
+            };
+
             client.createCollection(options, function (err, reviews) {
                 if (err) {
                     alert("Error: " + err);
-                } else {  
-                    marker.bindPopup(markerLabel);
-                    
-                    var i = 0;
-                    marker.on('click' , function() {
-                        while (reviews.hasNextEntity()) {
-                            var review = reviews.getNextEntity();
-                            $("#rest-comments").append("<p>Restaurant: " + review.get('namerest') + " <i> Comment:" + review.get('comments') + "</i><div class='Clear'>");
-                            if( review.get('rate') == '1' )
-                                $("#rest-comments").append("<input class='star' type='radio' name='rate" + i + "' value='1' title='Worst' checked='checked' disabled='disabled'/>");
-                            else $("#rest-comments").append("<input class='star' type='radio' name='rate" + i + "' value='1' title='Worst' disabled='disabled'/>");
-                            if( review.get('rate') == '2' )
-                                $("#rest-comments").append("<input class='star' type='radio' name='rate" + i + "' value='2' title='Bad' checked='checked' disabled='disabled'/>");
-                            else $("#rest-comments").append("<input class='star' type='radio' name='rate" + i + "' value='2' title='Bad' disabled='disabled'/>");
-                            if( review.get('rate') == '3' )
-                                $("#rest-comments").append("<input class='star' type='radio' name='rate" + i + "' value='3' title='OK' checked='checked' disabled='disabled'/>");
-                            else $("#rest-comments").append("<input class='star' type='radio' name='rate" + i + "' value='3' title='OK' disabled='disabled'/>");
-                            if( review.get('rate') == '4' )
-                                $("#rest-comments").append("<input class='star' type='radio' name='rate" + i + "' value='4' title='Good' checked='checked' disabled='disabled'/>");
-                            else $("#rest-comments").append("<input class='star' type='radio' name='rate" + i + "' value='4' title='Good' disabled='disabled'/>");
-                            if( review.get('rate') == '5' )
-                                $("#rest-comments").append("<input class='star' type='radio' name='rate" + i + "' value='5' title='Best' checked='checked' disabled='disabled'/>");
-                            else $("#rest-comments").append("<input class='star' type='radio' name='rate" + i + "' value='5' title='Best' disabled='disabled'/>");
-                            $("#rest-comments").append("</div></p> <small>User: " + review.get('creator')+ "</small>");
 
-                            $('.star').rating({
-                                callback: function(value, link) {
-                                    //alert(value);
-                                    $("#rate").val(value);
-                                }
-                            });
-                            i++;
-                        }   
+                    return;
+                }
+
+                if (!reviews.hasNextEntity()) {
+                    return;
+                }
+
+                commentsContainer.show().find('blockquote').remove();
+
+                var i = 0;
+
+                while (reviews.hasNextEntity()) {
+                    var review = reviews.getNextEntity();
+                    var el = $('<blockquote>');
+
+                    el.append("<p>Restaurant: " + review.get('namerest') + " <i> Comment:" + review.get('comments') + "</i><div class='Clear'>");
+
+                    if( review.get('rate') == '1' )
+                        el.append("<input class='star' type='radio' name='rate" + i + "' value='1' title='Worst' checked='checked' disabled='disabled'/>");
+                    else el.append("<input class='star' type='radio' name='rate" + i + "' value='1' title='Worst' disabled='disabled'/>");
+                    if( review.get('rate') == '2' )
+                        el.append("<input class='star' type='radio' name='rate" + i + "' value='2' title='Bad' checked='checked' disabled='disabled'/>");
+                    else el.append("<input class='star' type='radio' name='rate" + i + "' value='2' title='Bad' disabled='disabled'/>");
+                    if( review.get('rate') == '3' )
+                        el.append("<input class='star' type='radio' name='rate" + i + "' value='3' title='OK' checked='checked' disabled='disabled'/>");
+                    else el.append("<input class='star' type='radio' name='rate" + i + "' value='3' title='OK' disabled='disabled'/>");
+                    if( review.get('rate') == '4' )
+                        el.append("<input class='star' type='radio' name='rate" + i + "' value='4' title='Good' checked='checked' disabled='disabled'/>");
+                    else el.append("<input class='star' type='radio' name='rate" + i + "' value='4' title='Good' disabled='disabled'/>");
+                    if( review.get('rate') == '5' )
+                        el.append("<input class='star' type='radio' name='rate" + i + "' value='5' title='Best' checked='checked' disabled='disabled'/>");
+                    else $("#rest-comments").append("<input class='star' type='radio' name='rate" + i + "' value='5' title='Best' disabled='disabled'/>");
+                    el.append("</div></p> <small>User: " + review.get('creator')+ "</small>");
+
+                    el.appendTo(commentsContainer);
+
+                    $('.star').rating({
+                        callback: function(value) {
+                            $("#rate").val(value);
+                        }
                     });
-                    
+
+                    i++;
                 }
             });
-        }
-        $("#likes").append("There are " + c + " restaurants near you.");
-    } else {
-        $("#tipdisplay").html("I'm sorry, but I couldn't find any restaurant within 30 miles and from the past 7 days.");
+        });
     }
+
+    var count = results._list.length;
+
+    $("#likes").html("There " + (count > 1 ? 'are '+ count +' restaurants' : 'is only 1 restaurant') + " near you.");
 }
 
 //Wrapper for alert so I can dynamically use PhoneGap alert's on device
