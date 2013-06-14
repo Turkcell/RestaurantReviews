@@ -3,7 +3,12 @@
         xmlns:gap = "http://phonegap.com/ns/1.0"
         id        = "com.turkcell.restaurantee"
         version   = "1.0.0">
+
     <name>RestaurantReviews</name>
+
+    <description>
+        Application for location based reviewing restaurants.
+    </description>
 
     <author href="http://www.turkcell.com.tr" email="support@turkcelltech.com">
         Turkcell OpenLab
