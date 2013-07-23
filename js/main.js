@@ -1,7 +1,6 @@
 var client = new Usergrid.Client({
-    URI: 'http://usergridstack.dnsdynamic.com:8080',
-    orgName: 'deneme', //your orgname goes here (not case sensitive)
-    appName: 'cowtip', //your appname goes here (not case sensitive)
+    orgName: 'ecesecil', //your orgname goes here (not case sensitive)
+    appName: 'sandbox', //your appname goes here (not case sensitive)
     logging: true, //optional - turn on logging, off by default
     buildCurl: true //optional - turn on curl commands, off by default
 });
@@ -236,7 +235,7 @@ function renderResults(results, myLoc) {
             var followingList = [];
 
             jQuery.ajax({
-                url: "http://usergridstack.dnsdynamic.com:8080/deneme/cowtip/users/me/following",
+                url: "https://api.usergrid.com/ecesecil/sandbox/users/me/following",
                 async: false,
                 data: {
                     access_token: client.getToken()
