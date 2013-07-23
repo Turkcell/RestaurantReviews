@@ -1,9 +1,4 @@
-var client = new Usergrid.Client({
-    orgName: 'ecesecil', //your orgname goes here (not case sensitive)
-    appName: 'sandbox', //your appname goes here (not case sensitive)
-    logging: true, //optional - turn on logging, off by default
-    buildCurl: true //optional - turn on curl commands, off by default
-});
+var client = new Usergrid.Client(clientConfig);
 var currentLocation;
 var appUser;
 var count;
@@ -235,7 +230,7 @@ function renderResults(results, myLoc) {
             var followingList = [];
 
             jQuery.ajax({
-                url: "https://api.usergrid.com/ecesecil/sandbox/users/me/following",
+                url: clientConfig.URI+ "ecesecil/sandbox/users/me/following",
                 async: false,
                 data: {
                     access_token: client.getToken()

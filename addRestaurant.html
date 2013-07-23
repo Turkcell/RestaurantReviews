@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="js/config.js"></script>
 <script src="phonegap.js"></script>
 <script src="js/usergrid.js"></script>
 <script src="js/jquery-1.8.2.min.js"></script>
@@ -15,13 +16,7 @@
 
 <script>
 	$( document ).ready(function() {
-		var client = new Usergrid.Client({
-	        URI: 'http://usergridstack.dnsdynamic.com:8080',
-	        orgName: 'deneme', //your orgname goes here (not case sensitive)
-	        appName: 'cowtip', //your appname goes here (not case sensitive)
-	        logging: true, //optional - turn on logging, off by default
-	        buildCurl: true //optional - turn on curl commands, off by default
-	    });
+		var client = new Usergrid.Client(clientConfig);
 	    client.getLoggedInUser(function (err, data, user){
             if(err){
                 window.location = 'login.html';
@@ -31,13 +26,7 @@
 </script>
 <script>
 	function logout(){
-		var client = new Usergrid.Client({
-		        URI: 'http://usergridstack.dnsdynamic.com:8080',
-		        orgName: 'deneme', //your orgname goes here (not case sensitive)
-		        appName: 'cowtip', //your appname goes here (not case sensitive)
-		        logging: true, //optional - turn on logging, off by default
-		        buildCurl: true //optional - turn on curl commands, off by default
-		    });
+		var client = new Usergrid.Client(clientConfig);
 		client.logout();
 		window.location = 'login.html';
 	}

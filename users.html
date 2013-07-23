@@ -13,18 +13,12 @@
             line-height: 30px;
         }
     </style>
-
+    <script src="js/config.js"></script>
     <script src="phonegap.js"></script>
     <script src="js/jquery-1.8.2.min.js"></script>
     <script src="js/usergrid.js"></script>
     <script>
-        var client = new Usergrid.Client({
-            URI: 'http://usergridstack.dnsdynamic.com:8080',
-            orgName: 'deneme', //your orgname goes here (not case sensitive)
-            appName: 'cowtip', //your appname goes here (not case sensitive)
-            logging: true, //optional - turn on logging, off by default
-            buildCurl: true //optional - turn on curl commands, off by default
-        });
+        var client = new Usergrid.Client(clientConfig);
         var appUser;
         var followingList = new Array();
         var index = 0;
@@ -33,13 +27,13 @@
                 window.location = 'login.html';
             } else {
                 appUser = user._data.username;
-                jQuery.ajax({url:"http://usergridstack.dnsdynamic.com:8080/deneme/cowtip/users/" + appUser + "/following", success:function (data,status){
+                jQuery.ajax({url:clientConfig.URI+ "/"+ clientConfig.orgName+"/"+clientConfig.appName+"/users/" + appUser + "/following", success:function (data,status){
                     jQuery.each(data.entities, function (i, val){
                         followingList[index] = val.username;
                         index++;
                     });
                 }, async:false});
-                jQuery.ajax({url:"http://usergridstack.dnsdynamic.com:8080/deneme/cowtip/users", success:function (data,status){
+                jQuery.ajax({url:clientConfig.URI+ "/"+ clientConfig.orgName+"/"+clientConfig.appName+"/users", success:function (data,status){
                     jQuery.each(data.entities, function (i, val){
                         if(followingList.indexOf(val.username) > -1){
                             $("#users").append("<li>" + val.username + ' <a href="#" data-id="' + val.username + '" class="btn btn-small btn-danger pull-right unfollowed">Unfollow</a></li>');
@@ -53,13 +47,7 @@
     </script>
     <script>
         function logout(){
-            var client = new Usergrid.Client({
-                    URI: 'http://usergridstack.dnsdynamic.com:8080',
-                    orgName: 'deneme', //your orgname goes here (not case sensitive)
-                    appName: 'cowtip', //your appname goes here (not case sensitive)
-                    logging: true, //optional - turn on logging, off by default
-                    buildCurl: true //optional - turn on curl commands, off by default
-                });
+            var client = new Usergrid.Client(clientConfig);
             client.logout();
             window.location = 'login.html';
         }
